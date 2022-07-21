@@ -38,12 +38,12 @@ router.post("/login", [
     .not().isEmpty()
     .custom( async (value, { req }) => {
         let user = await User.findOne({ email: req.body.email });
-        let matchedPassword = bcrypt.compare(value, user.password);
+        let matchedPassword = await bcrypt.compare(value, user.password);
         if (!matchedPassword) throw new Error("Incorrect password")
         return true
     })
 ], authControllers.postLogin)
 
-router.post("/products", isAuth, authControllers.postLogout)
+router.post("/forgotPassword", authControllers.passwordRecovery)
 
 module.exports = router;

@@ -61,3 +61,18 @@ exports.postLogin = async (req, res, next) => {
 };
 
 exports.postLogout = (req, res, next) => { console.log("welcome")};
+
+exports.passwordRecovery = async (req, res, next) => {
+  try {
+    let { email, password } = req.body;
+    let user = await User.findOne({ email: email });
+    if (!user) throw new Error("User not found!");
+    let salt = await bcrypt.genSalt(+process.env.SALT_ROUND);
+    let hashedPassword = await bcrypt.hash(password, salt);
+    user.password = hashedPassword;
+    await user.save()
+    return res.status(201).json("Password updated successfully...")
+  }   catch (err) {
+        next(err)
+      }
+}
