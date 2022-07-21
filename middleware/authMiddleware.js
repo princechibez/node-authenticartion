@@ -8,12 +8,10 @@ const isAuth = (req, res, next) => {
         if (!token) return res.status(401).json({ message: 'No token provided' });
         jwt.verify(token, jwtSecret, (err, decoded) => {
             if (err) return res.status(401).json({ message: 'Invalid token', error: err });
-            console.log(decoded);
-            req.userId = decoded._id
+            req.user = decoded.user
+            console.log(req.user.roles)
             next();
         });
-        console.log(token)
-    // valid token middleware
 };
 
 module.exports = isAuth;

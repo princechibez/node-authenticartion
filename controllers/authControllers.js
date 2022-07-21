@@ -8,9 +8,10 @@ const jwtSecret = process.env.JWT_SECRET;
 
 exports.postSignup = async (req, res, next) => {
   try {
-    let name = req.body.name;
-    let email = req.body.email;
-    let password = req.body.password;
+    const name = req.body.name;
+    const email = req.body.email;
+    const password = req.body.password;
+    const roles = req.body.roles;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       let error = new Error(errors.array()[0].msg);
@@ -26,15 +27,13 @@ exports.postSignup = async (req, res, next) => {
       username: name,
       email: email,
       password: hashedPassword,
+      roles: roles
     });
     await user.save();
 
-    const token = jwt.sign({ userId: user._id }, jwtSecret, {
-      expiresIn: "5m",
-    });
     return res
       .status(201)
-      .json({ user: user, token, message: "User created successfully" });
+      .json({ user: user, message: "User created successfully" });
   } catch (err) {
     err.httpStatusCode = err.httpStatusCode || 500;
     next(err);
@@ -43,16 +42,15 @@ exports.postSignup = async (req, res, next) => {
 
 exports.postLogin = async (req, res, next) => {
   try {
-    let email = req.body.email;
-    let password = req.body.password;
-    let errors = validationResult(req);
+    const { email, password } = req.body;
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
       let error = new Error(errors.array()[0].msg);
       errors.httpStatusCode = 401;
       throw error;
     }
-    let user = await User.findOne({ email: email });
-    let token = jwt.sign({ _id: user._id }, jwtSecret, { expiresIn: "50m" });
+    const user = await User.findOne({ email: email });
+    const token = jwt.sign({ user: user._doc }, jwtSecret, { expiresIn: "10m" });
     return res.status(200).json({ user: user, token, message: "Login Successfull..." })
   } catch (err) {
     err.httpStatusCode = err.httpStatusCode || 500;
