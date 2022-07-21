@@ -60,7 +60,9 @@ exports.postLogin = async (req, res, next) => {
   }
 };
 
-exports.postLogout = (req, res, next) => { console.log("welcome")};
+exports.postLogout = (req, res, next) => { 
+  return delete req.userId // This removes the userId from the request object
+};
 
 exports.passwordRecovery = async (req, res, next) => {
   try {
